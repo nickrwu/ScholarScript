@@ -2,7 +2,11 @@ import logoSVG from '../assets/logo.svg';
 import '../styles/Sidebar.css';
 import '../styles/Typography.css';
 
+import { useAuth0 } from "@auth0/auth0-react";
+import LogoutButton from "./LogoutButton";
+
 const Sidebar = () => {
+  const { isAuthenticated } = useAuth0();
   return (
     <div className="col-auto col-sm-2 col-md-3 col-xl-2 px-sm-2 px-0 min-vh-100 d-flex justify-content-between flex-column">
       <div className="py-4 px-2">
@@ -25,12 +29,16 @@ const Sidebar = () => {
           </li>
         </ul>
       </div>
-      <div className="profile">
-        <a href="/profile" className="text-decoration-none text-dark fs-2 p-4" type="button" id="triggerId" aria-expanded="false">
-          <i className="bi bi-person-circle"></i>
-          <span className="body-text-lg-semibold ms-3 d-none d-md-inline text-md-start">Profile</span>
-        </a>
-      </div>
+      {isAuthenticated &&
+      <div className="py-4">
+        <div className="profile">
+          <a href="/profile" className="text-decoration-none text-dark fs-2 px-4 py-2" type="button" id="triggerId" aria-expanded="false">
+            <i className="bi bi-person-circle"></i>
+            <span className="body-text-lg-semibold ms-3 d-none d-md-inline text-md-start">Profile</span>
+          </a>
+        </div>
+        <LogoutButton />
+      </div>}
     </div>
   );
 }

@@ -3,14 +3,20 @@ import "../src/styles/Typography.css";
 import "../src/styles/Dashboard.css";
 import ScholarshipCard from '../src/components/ScholarshipCard';
 import ScholarshipModal from "../src/components/Modal";
+import { useAuth0 } from "@auth0/auth0-react";
 
-const HomePage = (user, scholarships) => {
+const HomePage = (scholarships) => {
+    const { user, isAuthenticated, isLoading } = useAuth0();
 
-    user = {
-        name: "John Doe",
-        submitted: 3,
-        value: "$5000"
-    };
+    if (isLoading) {
+        return <div>Loading ...</div>;
+    }
+
+    // user = {
+    //     name: "Christopher Ludwig Eisgruber",
+    //     submitted: 3,
+    //     value: "$5000"
+    // };
 
     scholarships = [
         {
