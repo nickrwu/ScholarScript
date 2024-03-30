@@ -138,4 +138,27 @@ exports.finishApplicationHandler = async (req, res) => {
     }
 };
 
-//get name, get application status, get essays
+exports.getApplicantStatus = async (userId, scholarshipId) => {
+    try {
+        await client.connect();
+        const db = client.db(DATABASE);
+        const appliedCollection = db.collection(APPLIED);
+
+        const application = await appliedCollection.findOne({
+            user: new ObjectId(userId),
+            scholarship: new ObjectId(scholarshipId),
+        });
+
+        await client.close();
+
+        return application ? application.status : -1;
+    } catch (error) {
+        console.error("Error fetching applicant status:", error);
+        throw error;
+    } finally {
+        await client.close();
+    }
+};
+
+
+//get name, get application status

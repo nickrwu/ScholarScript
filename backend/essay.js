@@ -141,4 +141,40 @@ exports.combineEssays = async (req, res) => {
     }
 };
 
-//mark scholarship as applied, 
+exports.getEssays = async (userId) => {
+    try {
+        await client.connect();
+        const db = client.db(DATABASE);
+        const collection = db.collection(ESSAY);
+
+        const essays = await collection.find({ user: new ObjectId(userId) }).toArray();
+        console.log(`Found ${essays.length} essays for user with ID: ${userId}`);
+
+        return essays;
+    } catch (error) {
+        console.error(`Error retrieving essays for user with ID ${userId}:`, error);
+        throw new Error("Failed to retrieve essays from database");
+    } finally {
+        await client.close();
+    }
+};
+
+exports.getEssaysHandler = async (req, res) => {
+    const { userId } = req.body;
+
+    if (!userId) {
+        return res.status(400).send('User ID is required.');
+    }
+    try {
+        const essays = await exports.getEssays(userId);
+        if (essays.length > 0) {
+            res.status(200).send(essays);
+        } else {
+            res.status(404).send({ message: `No essays found for user with ID: ${userId}` });
+        }
+    } catch (error) {
+        console.error('Error retrieving essays:', error);
+        res.status(500).send('An error occurred while retrieving the essays.');
+    }
+};
+
