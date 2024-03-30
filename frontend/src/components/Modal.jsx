@@ -40,38 +40,37 @@ const ScholarshipModal = (scholarshipData, essays) => {
                             </div>
                         </div>
                     </div>
-                    <div className="row my-5">
-                        <div className="col-6">
+                    <div style={{gap: "96px"}}className="row my-3">
+                        <div className="col-9">
                             <div className="row my-3">
                                 <div className="d-flex justify-content-between">
-                                    <>
+                                    <div className="d-flex ">
                                         <div className="orange"/>
-                                            <div className='flex'>
-                                                <span className="heading-title-sm text-secondary">ESSAY STATUS</span>
-                                                <span className="heading-heading-large">Not Started</span>
+                                            <div className='flex-row'>
+                                                <div className="row"><span className="heading-title-sm text-secondary">ESSAY STATUS</span></div>
+                                                <div className="row"><span className="heading-heading-large">Not Started</span></div>
+                                            </div>
                                         </div>
-                                    </>
-                                   
-                                    <button style={{background: "var(--primary-blue, #4D62CE)"}} className="btn btn-primary">Start Writing</button>
+                                        <button style={{background: "var(--primary-blue, #4D62CE)"}} className="btn btn-primary" onClick={() => handleTabChange('essay')}>Start Writing</button>
+                                    </div>
                                 </div>
-                            </div>
                             <div className="row my-3">
                                 <h3 className="heading-heading-md">Eligibility & Criteria</h3>
-                                <ul>
+                                <ul className="body-text-md ms-4">
                                     <li>Must be a high school senior</li>
                                     <li>Must be a resident of New York</li>
                                 </ul>
                             </div>
                             <div className="row my-3">
                                 <h3 className="heading-heading-md">Ideal Candidate</h3>
-                                    <ul>
+                                    <ul className="body-text-md ms-4">
                                         <li>Must be a high school senior</li>
                                         <li>Must be a resident of New York</li>
                                     </ul>
                             </div>
                         </div>
-                        <div className="col-6">
-                            <h3 className="heading-heading-lg">Essay</h3>
+                        <div className="col-3">
+                            <h3 className="heading-heading-lg">Application Requirements</h3>
                             <p>Write a 500-word essay on the importance of community service.</p>
                         </div>
                     </div>
@@ -80,8 +79,13 @@ const ScholarshipModal = (scholarshipData, essays) => {
         );
     } else if (activeTab === 'essay') {
         modalBody = (
-            <div>
-                {/* Essay content */}
+            <div className='d-flex align-items-center justify-content-center'>
+                <h2 className='heading-display-sm'>Choose the essay(s) you want to use</h2>
+                <p className='body-text-lg text-secondary'></p>
+                <div>
+                    
+                </div>
+                <a className="text-decoration-none text-black body-text-lg-semibold m-0 nav-close" onClick={() => handleCloseModal()}>Add a new essay</a>
             </div>
         );
     }
