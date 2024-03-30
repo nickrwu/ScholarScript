@@ -4,6 +4,8 @@ import "../styles/Dashboard.css";
 const ScholarshipCard = (scholarshipData) => {
     const [status, setStatus] = useState("");
     scholarshipData = scholarshipData.scholarshipData;
+
+    console.log(scholarshipData)
     
     useEffect(() => {
         // Make a call to the Node.js backend to get the status
@@ -12,21 +14,25 @@ const ScholarshipCard = (scholarshipData) => {
         // fetch("/api/getStatus")
         //     .then(response => response.json())
         //     .then(data => setStatus(data.status))
-        setStatus("red"); // Replace with the actual logic to get the status
+        setStatus(scholarshipData.applicationStatus);
     }, []);
 
     // Check if the status field is present in scholarshipData
 
-    console.log(scholarshipData)
-
     let circleColor = "";
-    if (status === "-1" || status === "") {
+    let statusText ="";
+    if (status === -1) {
         circleColor = "red";
-    } else if (status === "0") {
+        statusText = "Not Started"
+    } else if (status === 0) {
         circleColor = "yellow";
-    } else if (status === "1") {
+        statusText = "In Progress"
+    } else if (status === 1) {
         circleColor = "green";
+        statusText = "Completed"
     }
+
+    console.log(circleColor)
 
     return (
         <div className="container">
@@ -43,7 +49,7 @@ const ScholarshipCard = (scholarshipData) => {
                     <svg className="me-2" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 13" fill="none">
                         <circle cx="6" cy="6.5" r="6" fill={circleColor}/>
                     </svg>
-                    <p className="body-text-sm text-secondary mb-0">Not Started</p>
+                    <p className="body-text-sm text-secondary mb-0">{statusText}</p>
                 </div>
             </a>
         </div>

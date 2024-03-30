@@ -25,17 +25,3 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
-
-
-useEffect(() => {
-    const fetchScholarships = async () => {
-        try {
-            const response = await axios.post('http://localhost:3000/getAllScholarships', { userId: "6607696977096d1969218881" });
-            setScholarships(response.data);
-        } catch (error) {
-            console.error('Error fetching scholarships:', error);
-        }
-    };
-
-    fetchScholarships();
-}, []);
