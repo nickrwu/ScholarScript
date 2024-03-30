@@ -1,90 +1,43 @@
-import {React, useState} from "react";
+import {React, useState, useEffect} from "react";
 import "../src/styles/Typography.css";
+import axios from 'axios';
 import "../src/styles/Dashboard.css";
 import ScholarshipCard from '../src/components/ScholarshipCard';
 import ScholarshipModal from "../src/components/Modal";
-import { useAuth0 } from "@auth0/auth0-react";
 
-const HomePage = (scholarships) => {
-    const { user, isAuthenticated, isLoading } = useAuth0();
+const HomePage = () => {
+
+    const user = {
+        "_id": {"$oid": "6607696977096d1969218881"},
+        "name": "Nicholas R. Wu",
+        "email": "nrw9167@stern.nyu.edu",
+        "essays": [{"$oid": "66076a7d77096d1969218883"}, {"$oid": "6607a11af9393d6bd1d69f11"}]
+    };
+
+    const isLoading = false;
+
+    const [scholarships, setScholarships] = useState([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    useEffect(() => {
+        const fetchScholarships = async () => {
+            try {
+                const response = await axios.post('http://localhost:3000/getAllScholarships', { userId: user._id.$oid });
+                setScholarships(response.data);
+            } catch (error) {
+                console.error('Error fetching scholarships:', error);
+            }
+        };
+
+        fetchScholarships();
+    }, []);
+
+    const openModal = () => setIsModalOpen(true);
+    const closeModal = () => setIsModalOpen(false);
 
     if (isLoading) {
         return <div>Loading ...</div>;
     }
-
-    // user = {
-    //     name: "Christopher Ludwig Eisgruber",
-    //     submitted: 3,
-    //     value: "$5000"
-    // };
-
-    scholarships = [
-        {
-            "_id": "660762db77096d1969218878",
-            "name": "Coca-Cola Scholars",
-            "desc": "An achievement-based scholarship awarded to students in their final year of high school. Students are recognized for their capacity to lead and serve, as well as their commitment to making a significant impact on their schools and communities.",
-            "deadline": "Summer 2024",
-            "category": [
-                "Academic"
-            ],
-            "applicationStatus": -1
-        },
-        {
-            "_id": "6607637377096d1969218879",
-            "name": "The Gates Scholarship",
-            "desc": "A highly selective, last-dollar scholarship for outstanding, minority, high school seniors from low-income households.",
-            "deadline": "Summer 2024",
-            "category": [
-                "Academic",
-                "Diversity",
-                "Financial"
-            ],
-            "applicationStatus": -1
-        },
-        {
-            "_id": "6607640677096d196921887c",
-            "name": "The Dell Scholars Program",
-            "desc": "Every year, the Dell Scholars program selects 500 students nationwide, offering comprehensive support and a scholarship to each recipient. Our support is designed to help each Dell Scholar build their ideal pathway to graduation and beyond",
-            "deadline": "Summer 2024",
-            "category": [
-                "Financial"
-            ],
-            "applicationStatus": 1
-        },
-        {
-            "_id": "6607642377096d196921887d",
-            "name": "Jack Kent Cooke Foundation Scholarship Program",
-            "desc": "The Jack Kent Cooke Foundation’s scholarship programs are designed to encourage and support outstanding students who work hard and have financial need. Our scholarships provide financial assistance and academic support to high school, undergraduate, and graduate students",
-            "deadline": "Summer 2024",
-            "category": [
-                "Academic",
-                "Financial"
-            ],
-            "applicationStatus": -1
-        },
-        {
-            "_id": "6607644c77096d196921887e",
-            "name": "Jackie Robinson Scholar Program",
-            "desc": "The Jackie Robinson Foundation provides a multi-faceted experience designed to not only address the financial needs of students who aspire to attend college but to guide them through the process of higher education",
-            "deadline": "Winter 2025",
-            "category": [
-                "Academic",
-                "Diversity",
-                "Financial"
-            ],
-            "applicationStatus": -1
-        }
-    ]
-
-    const [isModalOpen, setIsModalOpen] = useState(false);
-
-    const openModal = () => {
-        setIsModalOpen(true);
-    };
-
-    const closeModal = () => {
-        setIsModalOpen(false);
-    };
 
     return (
         <div className="col-auto col-sm-10 col-md-9 col-xl-10 py-4 px-5">
@@ -96,11 +49,11 @@ const HomePage = (scholarships) => {
                 <div style={{backgroundImage: "url(../src/assets/banner.png)", backgroundSize: "cover", height: "180px"}} className="container d-flex px-5 py-3 d-flex justify-content-between align-items-flex-end align-self-stretch rounded-3">
                     <div className="p-2 d-flex align-items-flex-end align-self-stretch align-items-end">
                         <div className="flex-direction-column me-5 justify-content-center align-items-flex-start">
-                            <h3 className="heading-display-md text-white">{user.submitted}</h3>
+                            <h3 className="heading-display-md text-white">3</h3>
                             <p className="body-text-lg text-white">Apps</p>
                         </div>
                         <div className="flex-direction-column justify-content-center align-items-flex-start">
-                            <h3 className="heading-display-md text-white">{user.value}</h3>
+                            <h3 className="heading-display-md text-white">5000</h3>
                             <p className="body-text-lg text-secondary text-white">In value</p>
                         </div>
                     </div>
@@ -123,7 +76,7 @@ const HomePage = (scholarships) => {
             <div className="container-fluid p-0">
                 <div style={{overflowX: "auto"}} className="d-flex flex-row flex-nowrap">
                     {scholarships.map((scholarship) => (
-                        <ScholarshipCard key={scholarship.id} scholarshipData={scholarship} />
+                        <ScholarshipCard key={scholarship._id} scholarshipData={scholarship} />
                     ))}
                 </div>
             </div>
