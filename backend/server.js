@@ -3,7 +3,9 @@ const { uploadEssayHandler, deleteEssayHandler, combineEssays, getEssaysHandler 
 const { deleteApplicationHandler, finishApplicationHandler, startApplicationHandler } = require('./applications');
 const { getAllScholarshipsHandler, getScholarshipDetailsHandler } = require('./scholarships');
 const app = express();
+const cors = require('cors');
 app.use(express.json());
+app.use(cors());
 
 app.post('/uploadEssay', uploadEssayHandler);
 app.post('/deleteEssay', deleteEssayHandler);
@@ -23,3 +25,17 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
+
+
+useEffect(() => {
+    const fetchScholarships = async () => {
+        try {
+            const response = await axios.post('http://localhost:3000/getAllScholarships', { userId: "6607696977096d1969218881" });
+            setScholarships(response.data);
+        } catch (error) {
+            console.error('Error fetching scholarships:', error);
+        }
+    };
+
+    fetchScholarships();
+}, []);
