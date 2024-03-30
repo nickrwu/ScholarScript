@@ -1,9 +1,12 @@
 const express = require('express');
-const { uploadEssayHandler } = require('./essay');
+const { uploadEssayHandler, combineEssays } = require('./essay');
 const app = express();
 app.use(express.json());
 
 app.post('/uploadEssay', uploadEssayHandler);
+app.post('/combineEssay', combineEssays);
+app.post('/deleteApplication', deleteApplicationHandler); 
+app.post('/finishApplication', finishApplicationHandler);
 
 app.get('/', (req, res) => {
     res.send("Hello World!");
