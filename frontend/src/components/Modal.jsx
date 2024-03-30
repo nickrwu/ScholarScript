@@ -105,7 +105,7 @@ const ScholarshipModal = (scholarshipData, essays) => {
                 <div style={{borderLeft:"5px", borderColor: "black", height:"500px"}} className='col-8'>
                     <h2 className='heading-display-sm'>Choose the essay(s) you want to use</h2>
                     <p className='body-text-lg text-secondary'>Select the stories that are relevant and we'll tailor the essay for you!</p>
-                    <a className="text-decoration-none text-black body-text-lg-semibold m-0" onClick={() => handleTabChange('input')}>Add a new essay</a>
+                    <a className="text-decoration-none body-text-lg-semibold m-0 outline-button" onClick={() => handleTabChange('input')}>Add a new essay</a>
                 </div>
                 <div className='col-4'>
                     <h2 className='heading-display-sm'>Choose the essay(s) you want to use</h2>
@@ -116,15 +116,31 @@ const ScholarshipModal = (scholarshipData, essays) => {
         );
     } else if (activeTab === 'input') {
         modalBody = (
-            <div className='d-flex align-items-center justify-content-center'>
-                <div style={{borderLeft:"5px", borderColor: "black", height:"500px"}} className='col'>
+            <div className='d-flex align-items-center justify-content-between'>
+                <div className='col-7 mx-4'>
                     <h2 className='heading-display-sm'>Insert an essay you want to use</h2>
-                    <p className='body-text-lg text-secondary'>Select the stories that are relevant and we'll tailor the essay for you!</p>
-                    <textarea className="form-control" rows={10} placeholder="Enter your paragraph here"></textarea>
+                    <div className='body-text-lg text-secondary'>
+                        <p className='heading-heading-md text-black mb-1'>Choose a prompt</p>
+                        <p className='body-text-md text-secondary'>Recommended</p>
+                        <select className="form-select my-2">
+                            <option selected value="prompt1">Select</option>
+                            <option value="prompt1">Prompt 1</option>
+                            <option value="prompt2">Prompt 2</option>
+                            <option value="prompt3">Prompt 3</option>
+                        </select>
+                        <p className='body-text-md text-secondary mb-2'>or</p>
+                        <p className='heading-heading-md text-black mb-1'>Write your own</p>
+                        <input className="form-control form-control-md" type="text" placeholder="Type here..."></input>
 
-                    <a className="text-decoration-none text-black body-text-lg-semibold m-0" onClick={() => handleTabChange('input')}>Submit your essay</a>
+                    </div>
+                    <textarea className="form-control my-5" rows={10} placeholder="Paste or type your essay here..."></textarea>
+
                 </div>
-                
+                <div className='col-4 mx-4'>
+                    <h2 className='heading-display-sm'>Choose the essay(s) you want to use</h2>
+                    <p className='body-text-lg text-secondary'></p>
+                    <a className="text-decoration-none body-text-lg-semibold m-0 outline-button" onClick={() => handleTabChange('input')}>Save</a>
+                </div>
             </div>
         );
     }
