@@ -51,6 +51,19 @@
     background-color: transparent;
 }
 
+.outline-button:hover {
+    display: flex;
+    height: 48px;
+    width: 100%;
+    padding: 8px 16px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 4px;
+    border: 2px solid var(--bg-black, #272A39);
+    color: white;
+    background-color: black;
+}
+
 .logout-button {
     display: flex;
     height: 48px;
