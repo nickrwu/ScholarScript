@@ -1,10 +1,13 @@
 const express = require('express');
-const { uploadEssayHandler, combineEssays } = require('./essay');
+const { uploadEssayHandler, deleteEssayHandler, combineEssays } = require('./essay');
+const { deleteApplicationHandler, finishApplicationHandler, startApplicationHandler } = require('./applications');
 const app = express();
 app.use(express.json());
 
 app.post('/uploadEssay', uploadEssayHandler);
-app.post('/combineEssay', combineEssays);
+app.post('/deleteEssay', deleteEssayHandler);
+app.post('/combineEssays', combineEssays);
+app.post('/startApplication', startApplicationHandler);
 app.post('/deleteApplication', deleteApplicationHandler); 
 app.post('/finishApplication', finishApplicationHandler);
 

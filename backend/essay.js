@@ -3,6 +3,7 @@ const { generateText } = require('./open_ai');
 const client = require('./database.js');
 const DATABASE = "hackprinceton";
 const ESSAY = "essays";
+const SCHOLARSHIPS = "scholarships";
 
 exports.uploadEssay = async (essay) => {
     try {
@@ -20,29 +21,6 @@ exports.uploadEssay = async (essay) => {
     } catch (error) {
         console.error("Error inserting essay into database:", error);
         throw new Error("Failed to insert essay into database");
-    } finally {
-        await client.close();
-    }
-};
-
-exports.deleteEssay = async (essayId) => {
-    try {
-        await client.connect();
-        const db = client.db(DATABASE);
-        const collection = db.collection(ESSAY);
-        
-        const result = await collection.deleteOne({ _id: new ObjectId(essayId) });
-        
-        if (result.deletedCount === 0) {
-            console.log(`No essay found with ID: ${essayId}`);
-            return false;
-        } else {
-            console.log(`Deleted essay with ID: ${essayId}`);
-            return true;
-        }
-    } catch (error) {
-        console.error(`Error deleting essay with ID ${essayId}:`, error);
-        throw error;
     } finally {
         await client.close();
     }
@@ -69,36 +47,24 @@ exports.uploadEssayHandler = async (req, res) => {
     }
 };
 
-exports.combineEssays = async (req, res) => {
-    const { essayIds, scholarshipId } = req.body;
-
-    if (!essayIds || !scholarshipId) {
-        return res.status(400).send('Essay IDs and scholarship ID are required.');
-    }
-
+exports.deleteEssay = async (essayId) => {
     try {
         await client.connect();
         const db = client.db(DATABASE);
-
-        // Fetch essays
-        const essays = await db.collection(ESSAY).find({
-            _id: { $in: essayIds.map(id => new ObjectId(id)) }
-        }).toArray();
-
-        // Fetch scholarship
-        const scholarship = await db.collection(SCHOLARSHIPS).findOne({ _id: new ObjectId(scholarshipId) });
-
-        // Combine essay texts
-        const combinedText = essays.map(essay => essay.text).join('\n');
-
-        //OpenAI
-        const prompt = `Refine the following text to align with the scholarship's categories. Ensure that the new essay is not over 500 words. Return only the refined text. Categories: ${scholarship.category.join(', ')}\n\n${combinedText}`;
-        const refinedText = await generateText(prompt);
-
-        res.status(200).send({ combinedText: refinedText });
+        const collection = db.collection(ESSAY);
+        
+        const result = await collection.deleteOne({ _id: new ObjectId(essayId) });
+        
+        if (result.deletedCount === 0) {
+            console.log(`No essay found with ID: ${essayId}`);
+            return false;
+        } else {
+            console.log(`Deleted essay with ID: ${essayId}`);
+            return true;
+        }
     } catch (error) {
-        console.error('Error combining essays:', error);
-        res.status(500).send('An error occurred while combining the essays.');
+        console.error(`Error deleting essay with ID ${essayId}:`, error);
+        throw error;
     } finally {
         await client.close();
     }
@@ -126,6 +92,52 @@ exports.deleteEssayHandler = async (req, res) => {
     } catch (error) {
         console.error('Error deleting essay:', error);
         res.status(500).send({ message: 'An error occurred while deleting the essay.' });
+    }
+};
+
+exports.combineEssays = async (req, res) => {
+    const { essayIds, scholarshipId } = req.body;
+
+    if (!essayIds || !scholarshipId) {
+        return res.status(400).send('Essay IDs and scholarship ID are required.');
+    }
+
+    try {
+        await client.connect();
+        const db = client.db(DATABASE);
+
+        // Fetch essays
+        const essays = await db.collection(ESSAY).find({
+            _id: { $in: essayIds.map(id => new ObjectId(id)) }
+        }).toArray();
+
+        // Fetch scholarship
+        const scholarship = await db.collection(SCHOLARSHIPS).findOne({ _id: new ObjectId(scholarshipId) });
+
+        // Combine essay texts
+        const combinedText = essays.map(essay => essay.text).join('\n');
+
+        //OpenAI
+        const messages = [
+            { 
+              role: "system", 
+              content: `You are a helpful assistant. Your task is to refine the following text to align with the scholarship's categories of ${scholarship.category.join(", ")}. Ensure that the new essay is not over 500 words. Return only the refined text.` 
+            },
+            { 
+              role: "user", 
+              content: combinedText 
+            }
+        ];
+          
+        const model = "gpt-3.5-turbo";
+        const refinedText = await generateText(messages, model);
+
+        res.status(200).send({ combinedText: refinedText });
+    } catch (error) {
+        console.error('Error combining essays:', error);
+        res.status(500).send('An error occurred while combining the essays.');
+    } finally {
+        await client.close();
     }
 };
 

@@ -15,7 +15,7 @@ exports.startApplication = async (application) => {
         
         return {
             _id: result.insertedId,
-            ...essay
+            ...application
         };
     } catch (error) {
         console.error("Error inserting app into database:", error);
@@ -138,3 +138,4 @@ exports.finishApplicationHandler = async (req, res) => {
     }
 };
 
+//get name, get application status, get essays

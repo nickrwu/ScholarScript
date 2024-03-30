@@ -1,15 +1,15 @@
 const axios = require('axios');
 
-const OPENAI_API_URL = 'https://api.openai.com/v1/engines/davinci/completions';
-const { OPENAI_API_KEY } = require('./key');
+const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
+const { OPENAI_API_KEY } = require("./key")
 
-async function generateText(prompt) {
+async function generateText(messages, model) {
     try {
         const response = await axios.post(
             OPENAI_API_URL,
             {
-                prompt: prompt,
-                max_tokens: 150, // Adjust based on your needs
+                model: model,
+                messages: messages
             },
             {
                 headers: {
@@ -19,7 +19,7 @@ async function generateText(prompt) {
             }
         );
 
-        return response.data.choices[0].text.trim();
+        return response.data.choices[0].message.content.trim();
     } catch (error) {
         console.error('Error calling OpenAI API:', error);
         throw error;
