@@ -1,4 +1,13 @@
 /* 24 px */
+.heading-display {
+    font-family: Lora;
+    font-size: 4rem;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+}
+
+/* 24 px */
 .heading-display-sm {
     font-family: 'Lora', serif;
     font-size: 1.5rem;

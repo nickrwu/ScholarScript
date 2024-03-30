@@ -1,1 +1,1 @@
-# hackprinceton
+# ScholarScript
