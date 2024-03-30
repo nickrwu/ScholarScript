@@ -1,0 +1,56 @@
+/* 24 px */
+.heading-display-sm {
+    font-family: 'Lora', serif;
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+
+/* 32 px */
+.heading-display-md {
+    font-family: 'Lora', serif;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+/* 24 px */
+.heading-heading-lg {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+/* 18px */
+.body-text-lg-semibold {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+/* 18px */
+.body-text-lg {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 1.125rem;
+    font-weight: 400;
+}
+
+.body-text-md {
+    font-family: "Open Sans";
+    font-size: 1rem;
+    font-style: normal;
+    font-weight: 400;
+}
+.body-text-sm {
+    font-family: "Open Sans";
+    font-size: 0.875rem;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+.body-text-sm-semibold {
+    font-family: "Open Sans";
+    font-size: 0.75rem;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+}

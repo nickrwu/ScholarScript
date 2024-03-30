@@ -1,0 +1,21 @@
+.nav-pills li a:hover {
+    background-color: #e3e3e3;   
+}
+
+.profile i {
+    min-width: 50px;
+}
+
+.profile span {
+    font-size: 1.2rem;
+}
+
+.sidebar {
+    max-width: 25vw;
+}
+
+@media (min-width: 576px) {
+    .profile i {
+        min-width: 100px;
+    }
+}
