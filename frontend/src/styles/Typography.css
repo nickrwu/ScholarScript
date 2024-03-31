@@ -35,6 +35,13 @@
     font-weight: 600;
 }
 
+/* 16px */
+.body-text-md-semibold {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
 /* 18px */
 .body-text-lg-semibold {
     font-family: 'Open Sans', sans-serif;
