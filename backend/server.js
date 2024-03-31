@@ -1,4 +1,5 @@
 const express = require('express');
+const { getUser, createUser, deleteUser, updateUser } = require('./user');
 const { uploadEssayHandler, deleteEssayHandler, combineEssays, getEssaysHandler } = require('./essay');
 const { deleteApplicationHandler, finishApplicationHandler, startApplicationHandler } = require('./applications');
 const { getAllScholarshipsHandler, getScholarshipDetailsHandler } = require('./scholarships');
@@ -16,6 +17,11 @@ app.post('/deleteApplication', deleteApplicationHandler);
 app.post('/finishApplication', finishApplicationHandler);
 app.post('/getAllScholarships', getAllScholarshipsHandler);
 app.post('/getScholarshipDetails', getScholarshipDetailsHandler);
+
+app.get('/getUser', getUser);
+app.post('/createUser', createUser);
+app.post('/deleteUser', deleteUser);
+app.post('/updateUser', updateUser);
 
 app.get('/', (req, res) => {
     res.send("Hello World!");
