@@ -15,19 +15,29 @@ const ScholarshipModal = (scholarshipData, isOpen, closeModal) => {
         "essays": [{"$oid": "66076a7d77096d1969218883"}, {"$oid": "6607a11af9393d6bd1d69f11"}]
     };
 
-    const winners = Math.floor(Math.random() * 25);
-
     const [activeTab, setActiveTab] = useState('overview');
     const [showModal, setShowModal] = useState(true);
     const [status, setStatus] = useState("");
     const [essays, setEssays] = useState([]);
     const [formInputs, setFormInputs] = useState({
+        title: '',
         promptTemplate: '',
         promptInput: '',
-        essay: ''
+        essay: '',
+        category: []
     });
     
     scholarshipData = scholarshipData.scholarshipData;
+
+    const fetchEssays = async (uid) => {
+        try {
+            let result = await axios.post(
+                'http://localhost:3000/getEssays', { userId: uid });
+            setEssays(result.data);
+        } catch (error) {
+            console.error('Error fetching scholarships:', error.response.data);
+        }
+    };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -37,41 +47,91 @@ const ScholarshipModal = (scholarshipData, isOpen, closeModal) => {
         }));
     };
 
+    let newCategory = '';
+    const handleTagInputChange = (e) => {
+        newCategory = e.target.value.trim();
+    };
+
+    const handleRemoveTag = (index) => {
+        setFormInputs(prevState => {
+            const updatedTags = [...prevState.category];
+            updatedTags.splice(index, 1);
+            return {
+                ...prevState,
+                category: updatedTags
+            };
+        });
+    };
+
     const handleEssaySubmit = async (e) => {
         e?.preventDefault();
         console.log("Form Inputs:", formInputs);
-        handleTabChange('essay');
-        try {
-            const response = await axios.post('http://localhost:3000/uploadEssay', { text: formInputs.essay, userId: user._id.$oid });
-            // Handle the response as needed
-        } catch (error) {
-            console.error('Error uploading essay:', error.response.data);
+        if (formInputs.title !== '' && formInputs.essay !== '') {
+            try {
+                const response = await axios.post('http://localhost:3000/uploadEssay', 
+                { 
+                    title: formInputs.title, 
+                    text: formInputs.essay, 
+                    userId: user._id.$oid, 
+                    category: formInputs.category
+                });
+
+                // Reset form inputs
+                setFormInputs({
+                    title: '',
+                    promptTemplate: '',
+                    promptInput: '',
+                    essay: '',
+                    category: []
+                });
+
+                handleTabChange('essay');
+            } catch (error) {
+                console.error('Error uploading essay:', error.response.data);
+            }
+        } else {
+            return;
+        }
+    };
+
+    const handleAddTag = async (newCategory) => {
+        if (formInputs.category.length >= 3) {
+            return;
+        } else if(newCategory !== '') {
+            setFormInputs(prevState => ({
+                ...prevState,
+                category: [...prevState.category, newCategory]
+            }));
+        } else {
+            return;
         }
     };
 
     useEffect(() => {
-        const fetchEssays = async () => {
-            try {
-                let result = await axios.post(
-                    'http://localhost:3000/getEssays', { userId: user._id.$oid });
-                setEssays(result.data);
-            } catch (error) {
-                console.error('Error fetching scholarships:', error.response.data);
-            }
-        };
-
-        fetchEssays();
+        fetchEssays(user._id.$oid);
     }, [user._id.$oid]);
     
-    const handleTabChange = (tab) => {
+    const handleTabChange = async (tab) => {
         setActiveTab(tab);
+        if (tab === 'essay') {
+            const fetchEssays = async (uid) => {
+                try {
+                    let result = await axios.post(
+                        'http://localhost:3000/getEssays', { userId: uid });
+                    setEssays(result.data);
+                } catch (error) {
+                    console.error('Error fetching scholarships:', error.response.data);
+                }
+            };
+    
+            fetchEssays(user._id.$oid);
+        }
     };
 
     const handleCloseModal = () => {
         console.log("Modal closed");
         setShowModal(false);
         closeModal(false);
-        // closeModal();
     };
 
     if (!isOpen) {
@@ -98,7 +158,6 @@ const ScholarshipModal = (scholarshipData, isOpen, closeModal) => {
     }
 
     let modalBody;
-    console.log(essays);
 
     if (activeTab === 'overview') {
         modalBody = (
@@ -107,14 +166,14 @@ const ScholarshipModal = (scholarshipData, isOpen, closeModal) => {
                     <a href={scholarshipData.url} className='d-flex text-decoration-none text-black'>
                         <h2 className="heading-display-md me-2 mb-4">{scholarshipData.name}</h2><i className="fs-5 bi bi-box-arrow-up-right"></i>
                     </a>
-                    <div className="col-6 bg-white px-4 py-2 rounded-2">
+                    <div className="d-inline-block bg-white px-4 py-2 rounded-2">
                         <div className="p-2 d-flex align-items-flex-end align-self-stretch align-items-end">
                             <div className="flex-direction-column me-5 justify-content-center align-items-flex-start">
-                                <h3 className="heading-display-md">{scholarshipData.Axmount}</h3>
+                                <h3 className="heading-display-md">{scholarshipData.amount}</h3>
                                 <p className="body-text-lg text-secondary">Award</p>
                             </div>
                             <div className="flex-direction-column me-5 justify-content-center align-items-flex-start">
-                                <h3 className="heading-display-md">{winners}</h3>
+                                <h3 className="heading-display-md">{scholarshipData.winners}</h3>
                                 <p className="body-text-lg text-secondary">Winners</p>
                             </div>
                             <div className="flex-direction-column me-5 justify-content-center align-items-flex-start">
@@ -134,7 +193,7 @@ const ScholarshipModal = (scholarshipData, isOpen, closeModal) => {
                                                 <div className="row"><span className="heading-heading-lg">{statusText}</span></div>
                                             </div>
                                         </div>
-                                        <button style={{background: "var(--primary-blue, #4D62CE)"}} className="btn btn-primary" onClick={() => handleTabChange('essay')}>Start Writing</button>
+                                        <button style={{background: "var(--primary-blue, #4D62CE)"}} className="btn btn-primary body-text-md-semibold" onClick={() => handleTabChange('essay')}>Start Writing</button>
                                     </div>
                                 </div>
                             <div className="row my-3">
@@ -188,11 +247,11 @@ const ScholarshipModal = (scholarshipData, isOpen, closeModal) => {
                     <h2 className='heading-display-sm'>Choose the essay(s) you want to use</h2>
                     <p className='body-text-lg text-secondary'>Select the stories that are relevant and we'll tailor the essay for you!</p>
                     {essays.map((essay) => (
-                        <EssaySelect key={essay._id} essayData={essay} />
+                        <EssaySelect key={essay._id} essayData={essay} fetchEssays={fetchEssays} userId={user._id.$oid} />
                     ))}
                     <a className="text-decoration-none body-text-lg-semibold m-0 outline-button" onClick={() => handleTabChange('input')}>Add a new essay</a>
                 </div>
-                <div className='col-4 mx-4'>
+                <div className='col-4 me-4'>
                     <h2 className='heading-display-sm'>Choose the essay(s) you want to use</h2>
                     <p className='body-text-lg text-secondary'></p>
                     <a className="text-decoration-none body-text-lg-semibold m-0 tailor-button" onClick={() => handleTabChange('model')}> <img src={starSVG} className='me-2' />Tailor my essay</a>
@@ -202,24 +261,41 @@ const ScholarshipModal = (scholarshipData, isOpen, closeModal) => {
     } else if (activeTab === 'input') {
         modalBody = (
             <form id="essayInput" onSubmit={handleEssaySubmit}>
-                <div className='d-flex align-items-end justify-content-center'>
+                <div className='d-flex align-items-start justify-content-center'>
                     <div className='col-7 mx-4'>
-                            <h2 className='heading-display-sm'>Insert an essay you want to use</h2>
-                            <div className='body-text-lg text-secondary'>
-                                <p className='heading-heading-md text-black mb-1'>Choose a prompt</p>
-                                <p className='body-text-md text-secondary'>Recommended</p>
-                                <select name="promptTemplate" defaultValue="select" className="form-select my-2 heading-heading-md" onChange={handleInputChange}>
-                                    <option value="select">Select</option>
-                                    <option value="prompt1">Prompt 1</option>
-                                    <option value="prompt2">Prompt 2</option>
-                                    <option value="prompt3">Prompt 3</option>
-                                </select>
-                                <p className='body-text-md text-secondary mb-2'>or</p>
-                                <p className='heading-heading-md text-black mb-1'>Write your own</p>
-                                <input name="promptInput" className="form-control form-control-md body-text-lg" type="text" placeholder="Type here..." onChange={handleInputChange}></input>
-                            </div>
-                            <textarea name="essay" onChange={handleInputChange} style={{overflowY: "scroll"}} className="form-control my-5 body-text-lg" id="formControlTextarea" rows={15} placeholder="Paste or type your essay here..."></textarea>
-                            <button type="submit" onClick={() => handleEssaySubmit()} className="text-decoration-none body-text-lg-semibold m-0 tailor-button align-items-center align-self-stretch">Save</button>
+                        <h2 className='heading-display-sm'>Insert an essay you want to use</h2>
+                        <div className='body-text-lg text-secondary'>
+                            <p className='heading-heading-md text-black mb-1'>Essay Title</p>
+                            <input required name="title" className="form-control form-control-md body-text-lg" type="text" placeholder="Enter title here..." onChange={handleInputChange}></input>
+                            <p className='heading-heading-md text-black mb-1'>Choose a prompt</p>
+                            <p className='body-text-md text-secondary'>Recommended</p>
+                            <select name="promptTemplate" defaultValue="select" className="form-select my-2 heading-heading-md" onChange={handleInputChange}>
+                                <option value="select">Select</option>
+                                <option value="prompt1">Prompt 1</option>
+                                <option value="prompt2">Prompt 2</option>
+                                <option value="prompt3">Prompt 3</option>
+                            </select>
+                            <p className='body-text-md text-secondary mb-2'>or</p>
+                            <p className='heading-heading-md text-black mb-1'>Write your own</p>
+                            <input name="promptInput" className="form-control form-control-md body-text-lg" type="text" placeholder="Type here..." onChange={handleInputChange}></input>
+                        </div>
+                        <textarea required name="essay" onChange={handleInputChange} style={{resize: "None", overflowY: "scroll"}} className="form-control my-3 body-text-lg" id="formControlTextarea" rows={12} placeholder="Paste or type your essay here..."></textarea>
+                        <button type="submit" onClick={() => handleEssaySubmit()} className="text-decoration-none body-text-lg-semibold m-0 tailor-button align-items-center align-self-stretch">Save</button>
+                    </div>
+                    <div className='col-3 mx-2'>
+                        <p className='heading-heading-md text-black mb-1'>Add up to 3 tags</p>
+                        <input name="tagInput" className="form-control form-control-md body-text-lg mb-3" type="text" placeholder="Type here..." onChange={handleTagInputChange}></input>
+                        <button type="button" onClick={() => handleAddTag(newCategory)} className="text-decoration-none body-text-lg-semibold m-0 tailor-button align-items-center align-self-stretch">Add Tag</button>
+                        <div>
+                            {formInputs.category.map((tag, index) => (
+                                <div key={index} className="align-items-center">
+                                    <span style={{color: "#4D62CE", border: "2px solid #4D62CE", backgroundColor: "transparent" }} className="mt-4 badge rounded-pill body-text-md-semibold me-1">
+                                        {tag}
+                                        <button type="button" className="btn-close ms-2" style={{btnCloseColor: "#4D62CE", fontSize:".75rem"}} aria-label="Close" onClick={() => handleRemoveTag(index)}></button>
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </form>
@@ -229,7 +305,7 @@ const ScholarshipModal = (scholarshipData, isOpen, closeModal) => {
             <form id="essayInput" onSubmit={handleEssaySubmit}>
                 <div className='d-flex align-items-end justify-content-center'>
                     <div className='col-7 mx-4'>
-                        <div style={{backgroundColor: "white"}} className='rounded-2 p-4'>
+                        <div style={{backgroundColor: "white"}} className='row rounded-2 p-4'>
                             <h2 className='heading-heading-lg'>Title</h2>
                             <p className='body-text-lg text-black mb-1'>Paragraph here</p>
                         </div>
@@ -238,7 +314,6 @@ const ScholarshipModal = (scholarshipData, isOpen, closeModal) => {
                             <h2 className='heading-display-sm'>Insert an essay you want to use</h2>
                             <a className="text-decoration-none body-text-lg-semibold m-0 outline-button align-items-center" onClick={() => handleTabChange('input')}><i className="bi bi-clipboard text-black fs-4 me-2"></i>Copy Essay</a>
                             <button type="submit" style={{width:"80%"}} onClick={() => handleEssaySubmit()} className="text-decoration-none body-text-md-semibold m-0 tailor-button align-items-center align-self-stretch">Save</button>
-
                     </div>
                 </div>
             </form>

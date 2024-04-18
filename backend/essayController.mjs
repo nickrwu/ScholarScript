@@ -1,14 +1,16 @@
-const { ObjectId } = require('mongodb');
-const { generateText } = require('./open_ai');
-const client = require('./database.js');
-const DATABASE = "hackprinceton";
+import { ObjectId } from 'mongodb';
+import { generateText } from './open_ai';
+import client from './db/conn.mjs';
+import mongoose from 'mongoose';
+
 const ESSAY = "essays";
 const SCHOLARSHIPS = "scholarships";
 
+// Connect to DB
+var db = client.getDb();
+
 exports.uploadEssay = async (essay) => {
     try {
-        await client.connect();
-        const db = client.db(DATABASE);
         const collection = db.collection(ESSAY);
         
         const result = await collection.insertOne(essay);
@@ -27,19 +29,21 @@ exports.uploadEssay = async (essay) => {
 };
 
 exports.uploadEssayHandler = async (req, res) => {
-    const { text, userId } = req.body;
-    if (!text || !userId) {
-        return res.status(400).send('Essay text and user ID are required.');
+    const data = req.body;
+    if (!data.text || !data.userId || !data.title) {
+        return res.status(400).send('Essay title, text, and user ID are required.');
     }
 
     try {
         const essay = {
-            text,
-            user: new ObjectId(userId),
-            category: [],
+            title: data.title,
+            text: data.text,
+            user: new ObjectId(data.userId),
+            category: data.category ? data.category : [],
         };
 
         const insertedEssay = await exports.uploadEssay(essay);
+
         res.status(201).send(insertedEssay);
     } catch (error) {
         console.error('Error uploading essay:', error);
@@ -49,8 +53,6 @@ exports.uploadEssayHandler = async (req, res) => {
 
 exports.deleteEssay = async (essayId) => {
     try {
-        await client.connect();
-        const db = client.db(DATABASE);
         const collection = db.collection(ESSAY);
         
         const result = await collection.deleteOne({ _id: new ObjectId(essayId) });
@@ -78,10 +80,6 @@ exports.deleteEssayHandler = async (req, res) => {
     }
 
     try {
-        await client.connect();
-        const db = client.db(DATABASE);
-
-        
         const success = await this.deleteEssay(essayId)
 
         if (success) {
@@ -103,9 +101,6 @@ exports.combineEssays = async (req, res) => {
     }
 
     try {
-        await client.connect();
-        const db = client.db(DATABASE);
-
         // Fetch essays
         const essays = await db.collection(ESSAY).find({
             _id: { $in: essayIds.map(id => new ObjectId(id)) }
@@ -143,20 +138,17 @@ exports.combineEssays = async (req, res) => {
 
 exports.getEssays = async (userId) => {
     try {
-        await client.connect();
-        const db = client.db(DATABASE);
         const collection = db.collection(ESSAY);
 
-        const essays = await collection.find({ user: new ObjectId(userId) }).toArray();
+        const essays = await collection.find({ user: new mongoose.Types.ObjectId(userId) }).toArray();
         console.log(`Found ${essays.length} essays for user with ID: ${userId}`);
-
-        return essays;
     } catch (error) {
         console.error(`Error retrieving essays for user with ID ${userId}:`, error);
-        throw new Error("Failed to retrieve essays from database");
+        throw new Error(`Failed to retrieve essays for user with ID ${userId}: ${error.message}`);
     } finally {
         await client.close();
     }
+    return essays;
 };
 
 exports.getEssaysHandler = async (req, res) => {
@@ -173,8 +165,7 @@ exports.getEssaysHandler = async (req, res) => {
             res.status(404).send({ message: `No essays found for user with ID: ${userId}` });
         }
     } catch (error) {
-        console.error('Error retrieving essays:', error);
-        res.status(500).send('An error occurred while retrieving the essays.');
+        console.error(`Error retrieving essays for user with ID ${userId}:`, error);
+        res.status(500).send(`An error occurred while retrieving the essays for user with ID ${userId}: ${error.message}`);
     }
 };
-

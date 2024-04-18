@@ -35,8 +35,9 @@ const HomePage = () => {
     useEffect(() => {
         const fetchScholarships = async () => {
             try {
-                let result = await axios.post(
-                    'http://localhost:3000/getAllScholarships', { userId: user._id.$oid });
+                let result = await axios.get(
+                    `http://localhost:3000/getAllScholarships/${user._id.$oid}`
+                );
                 setScholarships(result.data);
             } catch (error) {
                 console.error('Error fetching scholarships:', error.response.data);
